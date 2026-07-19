@@ -1,24 +1,9 @@
-##############################################################################
-# StreamVault - Infraestructura NoSQL en AWS (AWS Academy Learner Lab)
-# Certamen 1 - Advanced Databases Workshop
+# StreamVault - infra NoSQL para el Learner Lab (Certamen 1)
+# Cassandra (historial reproducciones) + MongoDB (catalogo/usuarios) + DynamoDB (sesiones activas)
 #
-# Este archivo aprovisiona:
-#   1. Una instancia EC2 con Apache Cassandra (historial de reproducciones
-#      y eventos de usuario en tiempo real - modelo wide-column).
-#   2. Una instancia EC2 con MongoDB (catalogo de peliculas, perfiles de
-#      usuario y listas de favoritos - modelo documental).
-#   3. Una tabla DynamoDB gestionada por AWS (sesiones activas - modelo
-#      clave-valor) junto a una instancia EC2 que actua como cliente AWS CLI.
-#
-# Notas para el Learner Lab:
-#   - Solo existe el rol "LabRole"; no se crean roles/usuarios IAM nuevos.
-#   - La region esta fija en us-east-1 y el key pair "vockey" ya existe.
-#   - Las credenciales del Learner Lab son temporales: si expiran a mitad de
-#     una sesion de trabajo, hay que refrescarlas en el equipo local antes de
-#     volver a correr terraform.
-#   - Las credenciales NO se escriben en este archivo. Terraform las toma de
-#     ~/.aws/credentials en la maquina donde se ejecuta terraform apply.
-##############################################################################
+# Ojo: en el Learner Lab solo existe LabRole, no se crean IAM roles nuevos.
+# Credenciales se toman de ~/.aws/credentials, no van en este archivo. Si expiran
+# a mitad de sesion hay que refrescarlas y volver a aplicar.
 
 terraform {
   required_version = ">= 1.5.0"
@@ -35,9 +20,7 @@ provider "aws" {
   region = var.aws_region
 }
 
-##############################################################################
 # Variables
-##############################################################################
 
 variable "aws_region" {
   description = "Region de AWS usada por el Learner Lab"
@@ -69,9 +52,7 @@ variable "allowed_ssh_cidr" {
   default     = "0.0.0.0/0"
 }
 
-##############################################################################
-# Datos de la red y AMI por defecto del Learner Lab
-##############################################################################
+# Red y AMIs por defecto
 
 data "aws_vpc" "default" {
   default = true
@@ -109,9 +90,7 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-##############################################################################
-# Security group compartido
-##############################################################################
+# Security group compartido por las 3 instancias
 
 resource "aws_security_group" "streamvault_sg" {
   name        = "streamvault-sg"
@@ -151,14 +130,12 @@ resource "aws_security_group" "streamvault_sg" {
   }
 
   tags = {
-    Name    = "streamvault-sg"
+    Name     = "streamvault-sg"
     Proyecto = "StreamVault"
   }
 }
 
-##############################################################################
-# 1) APACHE CASSANDRA - historial de reproducciones y eventos de usuario
-##############################################################################
+# 1) Cassandra - historial de reproducciones / eventos de usuario
 
 resource "aws_instance" "cassandra" {
   ami                         = data.aws_ami.ubuntu.id
@@ -241,15 +218,13 @@ resource "aws_instance" "cassandra" {
     EOF
 
   tags = {
-    Name    = "streamvault-cassandra"
-    Motor   = "Apache Cassandra"
+    Name     = "streamvault-cassandra"
+    Motor    = "Apache Cassandra"
     Proyecto = "StreamVault"
   }
 }
 
-##############################################################################
-# 2) MONGODB - catalogo de peliculas, perfiles de usuario y favoritos
-##############################################################################
+# 2) MongoDB - catalogo de peliculas, perfiles y favoritos
 
 resource "aws_instance" "mongodb" {
   ami                         = data.aws_ami.ubuntu.id
@@ -313,15 +288,13 @@ resource "aws_instance" "mongodb" {
     EOF
 
   tags = {
-    Name    = "streamvault-mongodb"
-    Motor   = "MongoDB"
+    Name     = "streamvault-mongodb"
+    Motor    = "MongoDB"
     Proyecto = "StreamVault"
   }
 }
 
-##############################################################################
-# 3) DYNAMODB - sesiones activas (servicio gestionado, sin instalacion propia)
-##############################################################################
+# 3) DynamoDB - sesiones activas (servicio gestionado, no requiere EC2 propia)
 
 resource "aws_dynamodb_table" "sesiones_activas" {
   name         = "streamvault_sesiones_activas"
@@ -345,8 +318,8 @@ resource "aws_dynamodb_table" "sesiones_activas" {
   }
 
   tags = {
-    Name    = "streamvault-sesiones-activas"
-    Motor   = "DynamoDB"
+    Name     = "streamvault-sesiones-activas"
+    Motor    = "DynamoDB"
     Proyecto = "StreamVault"
   }
 }
@@ -483,15 +456,13 @@ resource "aws_instance" "dynamo_client" {
     EOF
 
   tags = {
-    Name    = "streamvault-dynamodb-client"
-    Motor   = "DynamoDB (cliente AWS CLI)"
+    Name     = "streamvault-dynamodb-client"
+    Motor    = "DynamoDB (cliente AWS CLI)"
     Proyecto = "StreamVault"
   }
 }
 
-##############################################################################
 # Outputs
-##############################################################################
 
 output "cassandra_public_ip" {
   description = "IP publica de la instancia de Cassandra"
