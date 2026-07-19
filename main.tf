@@ -63,6 +63,14 @@ data "aws_subnets" "default" {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
+
+  # us-east-1e no soporta varios tipos de instancia (t3.medium incl.) en varias
+  # cuentas del Learner Lab. Se excluye para no depender de qué subnet caiga
+  # primero en data.aws_subnets.default.ids[0].
+  filter {
+    name   = "availability-zone"
+    values = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1f"]
+  }
 }
 
 data "aws_ami" "ubuntu" {

@@ -12,6 +12,7 @@ Repo compartido: `main.tf` único con los tres motores. Deadline: lunes 20 de ju
 - Clonar el repo de GitHub y confirmar acceso al `main.tf` compartido.
 - Instalar Terraform y AWS CLI en cada equipo: Alex y César vía Homebrew (macOS); Nacha usando WSL o Git Bash en Windows, no PowerShell puro, para que SSH y los permisos del `.pem` se comporten igual que en Mac.
 - Cada uno inicia su propia sesión del AWS Academy Learner Lab y copia sus credenciales temporales a su propio `~/.aws/credentials` local.
+- Cada uno corre `terraform init` en su copia local del repo (descarga el provider `hashicorp/aws`; sin esto ningún `apply` de la Fase 1 va a funcionar).
 
 ## Fase 1 — Chequeo rápido individual (cada uno en su propia cuenta del Learner Lab, versión acotada por tiempo)
 

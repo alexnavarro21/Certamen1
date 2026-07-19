@@ -1,0 +1,11 @@
+# Terraform local state / plugin cache — nunca al repo (binarios enormes, datos reales de infra)
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfplan
+crash.log
+crash.*.log
+
+# Credenciales / variables locales
+*.pem
+*.tfvars
