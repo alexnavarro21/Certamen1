@@ -1,9 +1,5 @@
-# StreamVault - infra NoSQL para el Learner Lab (Certamen 1)
+# StreamVault
 # Cassandra (historial reproducciones) + MongoDB (catalogo/usuarios) + DynamoDB (sesiones activas)
-#
-# Ojo: en el Learner Lab solo existe LabRole, no se crean IAM roles nuevos.
-# Credenciales se toman de ~/.aws/credentials, no van en este archivo. Si expiran
-# a mitad de sesion hay que refrescarlas y volver a aplicar.
 
 terraform {
   required_version = ">= 1.5.0"
@@ -179,6 +175,7 @@ resource "aws_instance" "cassandra" {
     sed -i "s/^listen_address:.*/listen_address: $PRIVATE_IP/" /etc/cassandra/cassandra.yaml
     sed -i "s/^rpc_address:.*/rpc_address: 0.0.0.0/" /etc/cassandra/cassandra.yaml
     sed -i "s/^# broadcast_rpc_address:.*/broadcast_rpc_address: $PRIVATE_IP/" /etc/cassandra/cassandra.yaml
+    sed -i "s/- seeds: \"127.0.0.1.*\"/- seeds: \"$PRIVATE_IP\"/" /etc/cassandra/cassandra.yaml
 
     systemctl enable cassandra
     systemctl restart cassandra
